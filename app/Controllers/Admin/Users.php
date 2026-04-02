@@ -48,6 +48,7 @@ class Users extends AdminController
             $user = new User([
                 'email'    => $this->request->getPost('email'),
                 'password' => $this->request->getPost('password'),
+                'active'   => true,
             ]);
             $this->userModel->save($user);
             $user = $this->userModel->findById($this->userModel->getInsertID());

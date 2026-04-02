@@ -4,8 +4,11 @@ namespace App\Controllers;
 
 class Home extends BaseController
 {
-    public function index(): string
+    public function index(): \CodeIgniter\HTTP\RedirectResponse
     {
-        return view('welcome_message');
+        if (auth()->loggedIn()) {
+            return redirect()->to(site_url('mypage'));
+        }
+        return redirect()->to(site_url('login'));
     }
 }

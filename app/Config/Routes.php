@@ -20,6 +20,7 @@ $routes->group('', ['filter' => 'session'], static function (RouteCollection $ro
 // ダウンロード（公開）
 $routes->get('download/(:segment)', 'Download::index/$1');
 $routes->post('download/(:segment)', 'Download::verify/$1');
+$routes->get('download/(:segment)/stream', 'Download::stream/$1');
 
 // 管理ルート（要 admin.access 権限）
 $routes->group('admin', ['filter' => 'session'], static function (RouteCollection $routes): void {
