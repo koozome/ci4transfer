@@ -44,7 +44,10 @@
               <td>
                 <?php if (! $expired): ?>
                   <?php $url = site_url('download/' . $file['token']) ?>
-                  <input type="text" class="form-control form-control-sm" value="<?= esc($url) ?>" readonly onclick="this.select()">
+                  <div class="input-group input-group-sm">
+                    <input type="text" class="form-control form-control-sm" value="<?= esc($url) ?>" readonly>
+                    <button class="btn btn-outline-secondary" type="button" onclick="copyUrl(this, '<?= esc($url) ?>')">コピー</button>
+                  </div>
                 <?php endif ?>
               </td>
               <td>
@@ -60,4 +63,22 @@
     </table>
   </div>
 </div>
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<script>
+function copyUrl(btn, url) {
+  navigator.clipboard.writeText(url).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✓';
+    btn.classList.add('btn-success');
+    btn.classList.remove('btn-outline-secondary');
+    setTimeout(() => {
+      btn.textContent = orig;
+      btn.classList.remove('btn-success');
+      btn.classList.add('btn-outline-secondary');
+    }, 1500);
+  });
+}
+</script>
 <?= $this->endSection() ?>

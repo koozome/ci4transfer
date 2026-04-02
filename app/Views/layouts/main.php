@@ -54,6 +54,7 @@
         <?php endif ?>
         <a href="<?= site_url('mypage') ?>" class="btn btn-outline-secondary btn-sm">マイページ</a>
         <a href="<?= site_url('upload') ?>" class="btn btn-primary btn-sm">アップロード</a>
+        <a href="<?= site_url('logout') ?>" class="btn btn-outline-danger btn-sm">ログアウト</a>
       <?php else: ?>
         <a href="<?= site_url('login') ?>" class="btn btn-outline-secondary btn-sm">ログイン</a>
       <?php endif ?>

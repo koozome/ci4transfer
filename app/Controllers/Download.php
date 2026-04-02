@@ -9,70 +9,66 @@ use CodeIgniter\HTTP\ResponseInterface;
 
 class Download extends BaseController
 {
-    public function index(string $token): string|ResponseInterface
+    public function index(string $token): string
     {
-        $fileModel = model(FileModel::class);
-        $file      = $fileModel->findByToken($token);
+        $file = $this->findValid($token);
 
-        if ($file === null) {
-            return $this->render('download', [
-                'pageTitle' => 'ファイルが見つかりません',
-                'error'     => 'このリンクは無効です',
-            ]);
+        if (isset($file['error'])) {
+            return $this->render('download', ['pageTitle' => $file['error'], 'error' => $file['error']]);
         }
 
-        if ($file['expires_at'] !== null && strtotime($file['expires_at']) < time()) {
-            return $this->render('download', [
-                'pageTitle' => '有効期限切れ',
-                'error'     => 'このファイルの有効期限が切れています',
-            ]);
-        }
+        $autoDownload = $file['password'] === null || session()->get('dl_auth_' . $token) === true;
 
-        // パスワードなし → 直接ストリーム
-        if ($file['password'] === null) {
-            return $this->streamFile($file);
-        }
-
-        // パスワードあり → フォーム表示
         return $this->render('download', [
             'pageTitle'      => 'ダウンロード',
             'file'           => $file,
-            'requirePassword' => true,
+            'requirePassword' => ! $autoDownload,
+            'autoDownload'   => $autoDownload,
         ]);
     }
 
-    public function verify(string $token): string|ResponseInterface
+    public function verify(string $token): string|\CodeIgniter\HTTP\RedirectResponse
     {
-        $fileModel = model(FileModel::class);
-        $file      = $fileModel->findByToken($token);
+        $file = $this->findValid($token);
 
-        if ($file === null || ($file['expires_at'] !== null && strtotime($file['expires_at']) < time())) {
+        if (isset($file['error'])) {
             return redirect()->to(site_url('download/' . $token));
         }
 
-        $input = $this->request->getPost('password');
-
-        if (! password_verify((string) $input, $file['password'])) {
+        if (! password_verify((string) $this->request->getPost('password'), $file['password'])) {
             return $this->render('download', [
-                'pageTitle'       => 'ダウンロード',
-                'file'            => $file,
+                'pageTitle'      => 'ダウンロード',
+                'file'           => $file,
                 'requirePassword' => true,
-                'passwordError'   => 'パスワードが正しくありません',
+                'passwordError'  => 'パスワードが正しくありません',
             ]);
         }
 
-        return $this->streamFile($file);
+        // パスワード認証済みをセッションに記録して情報ページへ（完了画面を表示するため）
+        session()->set('dl_auth_' . $token, true);
+        return redirect()->to(site_url('download/' . $token));
     }
 
-    private function streamFile(array $file): ResponseInterface
+    public function stream(string $token): string|ResponseInterface
     {
+        $file = $this->findValid($token);
+
+        if (isset($file['error'])) {
+            return $this->render('download', ['pageTitle' => $file['error'], 'error' => $file['error']]);
+        }
+
+        // パスワード付きファイルはセッション認証を確認
+        if ($file['password'] !== null) {
+            if (! session()->get('dl_auth_' . $token)) {
+                return redirect()->to(site_url('download/' . $token));
+            }
+            session()->remove('dl_auth_' . $token);
+        }
+
         $path = WRITEPATH . 'uploads/' . $file['stored_name'];
 
         if (! is_file($path)) {
-            return $this->render('download', [
-                'pageTitle' => 'エラー',
-                'error'     => 'ファイルが見つかりません',
-            ]);
+            return $this->render('download', ['pageTitle' => 'エラー', 'error' => 'ファイルが見つかりません']);
         }
 
         model(FileModel::class)->incrementDownload((int) $file['id']);
@@ -80,5 +76,20 @@ class Download extends BaseController
         return $this->response
             ->download($path, null)
             ->setFileName($file['original_name']);
+    }
+
+    private function findValid(string $token): array
+    {
+        $file = model(FileModel::class)->findByToken($token);
+
+        if ($file === null) {
+            return ['error' => 'このリンクは無効です'];
+        }
+
+        if ($file['expires_at'] !== null && strtotime($file['expires_at']) < time()) {
+            return ['error' => 'このファイルの有効期限が切れています'];
+        }
+
+        return $file;
     }
 }
