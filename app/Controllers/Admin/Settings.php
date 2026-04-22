@@ -20,10 +20,11 @@ class Settings extends AdminController
 
         if ($this->request->getMethod() === 'POST') {
             $rules = [
-                'site_name'    => 'required|max_length[100]',
-                'copyright'    => 'permit_empty|max_length[200]',
-                'admin_theme'  => 'required|in_list[auto,light,dark]',
-                'public_theme' => 'required|in_list[auto,light,dark,github,academic,onigiri,solarized,vue,monospace,night,monospace-dark]',
+                'site_name'        => 'required|max_length[100]',
+                'site_description' => 'permit_empty|max_length[300]',
+                'copyright'        => 'permit_empty|max_length[200]',
+                'admin_theme'      => 'required|in_list[auto,light,dark]',
+                'public_theme'     => 'required|in_list[auto,light,dark,github,academic,onigiri,solarized,vue,monospace,night,monospace-dark]',
             ];
 
             if (! $this->validate($rules)) {
@@ -33,10 +34,13 @@ class Settings extends AdminController
                 ]);
             }
 
-            $settingModel->setValue('site_name',    $this->request->getPost('site_name'));
-            $settingModel->setValue('copyright',    $this->request->getPost('copyright') ?? '');
-            $settingModel->setValue('admin_theme',  $this->request->getPost('admin_theme'));
-            $settingModel->setValue('public_theme', $this->request->getPost('public_theme'));
+            $settingModel->setValue('site_name',        $this->request->getPost('site_name'));
+            $settingModel->setValue('site_description', $this->request->getPost('site_description') ?? '');
+            $settingModel->setValue('copyright',        $this->request->getPost('copyright') ?? '');
+            $settingModel->setValue('admin_theme',      $this->request->getPost('admin_theme'));
+            $settingModel->setValue('public_theme',     $this->request->getPost('public_theme'));
+            setting()->set('Auth.allowRegistration',    $this->request->getPost('allow_registration') === '1');
+            setting()->set('Auth.allowMagicLinkLogins', $this->request->getPost('allow_magic_link') === '1');
 
             return redirect()->to(site_url('admin/settings'))->with('message', '設定を保存しました');
         }

@@ -23,6 +23,14 @@
       </div>
 
       <div class="mb-3">
+        <label class="form-label">サイト説明</label>
+        <input type="text" name="site_description" class="form-control <?= isset($validation) && $validation->hasError('site_description') ? 'is-invalid' : '' ?>" value="<?= esc(old('site_description', $siteSettings['site_description'] ?? '')) ?>">
+        <?php if (isset($validation) && $validation->hasError('site_description')): ?>
+          <div class="invalid-feedback"><?= esc($validation->getError('site_description')) ?></div>
+        <?php endif ?>
+      </div>
+
+      <div class="mb-3">
         <label class="form-label">コピーライト</label>
         <input type="text" name="copyright" class="form-control <?= isset($validation) && $validation->hasError('copyright') ? 'is-invalid' : '' ?>" value="<?= esc(old('copyright', $siteSettings['copyright'] ?? '')) ?>">
         <?php if (isset($validation) && $validation->hasError('copyright')): ?>
@@ -63,6 +71,24 @@
           <option value="<?= $val ?>"<?= $currentPublicTheme === $val ? ' selected' : '' ?>><?= $label ?></option>
           <?php endforeach ?>
         </select>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">ユーザー登録</label>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" name="allow_registration" value="1" id="allow_registration"
+            <?= old('allow_registration', setting('Auth.allowRegistration') ? '1' : '0') === '1' ? 'checked' : '' ?>>
+          <label class="form-check-label" for="allow_registration">Register リンクを表示する</label>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">マジックリンクログイン</label>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" name="allow_magic_link" value="1" id="allow_magic_link"
+            <?= old('allow_magic_link', setting('Auth.allowMagicLinkLogins') ? '1' : '0') === '1' ? 'checked' : '' ?>>
+          <label class="form-check-label" for="allow_magic_link">Use a Login Link を表示する</label>
+        </div>
       </div>
 
       <button type="submit" class="btn btn-primary">保存</button>

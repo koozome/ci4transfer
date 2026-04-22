@@ -2,27 +2,28 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title><?= esc($title ?? 'ログイン') ?> — <?= esc(model(\App\Models\SettingModel::class)->getValue('site_name', 'ci4transfer')) ?></title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sakura.css@1.4.1/css/sakura.css" media="(prefers-color-scheme: light), (prefers-color-scheme: no-preference)">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sakura.css@1.4.1/css/sakura-dark.css" media="(prefers-color-scheme: dark)">
-  <style>
-    body { display: flex; flex-direction: column; min-height: 100vh; }
-    main { flex: 1; display: flex; align-items: center; justify-content: center; }
-    .auth-card { width: 100%; max-width: 420px; }
-  </style>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
 </head>
-<body>
+<body class="bg-light">
 
-<main>
-  <div class="auth-card">
-    <hgroup style="text-align:center; margin-bottom: 2rem;">
-      <h1><a href="<?= site_url('/') ?>" style="text-decoration:none">
-        <?= esc(model(\App\Models\SettingModel::class)->getValue('site_name', 'ci4transfer')) ?>
-      </a></h1>
-    </hgroup>
+<main role="main" class="container">
+  <div class="d-flex justify-content-center p-5">
+    <div class="card col-12 col-md-5 shadow-sm">
+      <div class="card-body">
+        <h4 class="text-center mb-4">
+          <a href="<?= site_url('/') ?>" class="text-decoration-none text-dark">
+            <?= esc(model(\App\Models\SettingModel::class)->getValue('site_name', 'ci4transfer')) ?>
+          </a>
+        </h4>
+        <?php $desc = model(\App\Models\SettingModel::class)->getValue('site_description', ''); if ($desc !== ''): ?>
+          <p class="text-center text-muted small mb-3"><?= esc($desc) ?></p>
+        <?php endif ?>
 
-    <?= $this->renderSection('content') ?>
+        <?= $this->renderSection('content') ?>
+      </div>
+    </div>
   </div>
 </main>
 
